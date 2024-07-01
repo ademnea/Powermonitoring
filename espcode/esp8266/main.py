@@ -11,11 +11,12 @@ HTTP_HEADERS = {'Content-Type': 'application/json'}
 
 RELAY_PIN: int        = 2
 ANALOGIN : int        = 0
-CALIBRATION: float    = -0.04
+CALIBRATION: float    = 0.39
 
 sendDataIntervalSeconds = 14
 relayOnTimeSeconds      = 5*60
 delayTimeSeconds        = 6*60*60
+wifiRetries             = 50
 
 
 def scan_wifi(sta_if) -> None:
@@ -26,12 +27,14 @@ def scan_wifi(sta_if) -> None:
 def connect_wifi() -> None:  
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
-    while True:
+    count = 0
+    while count < wifiRetries:
         try:
             if not sta_if.isconnected():
-                print('connecting to network...')
+                print(f'connecting to network... Retries = {count}')
                 sta_if.connect(SSID, PASSWORD)
-                time.sleep(1)        
+                time.sleep(1)
+                count += 1                
             if sta_if.isconnected():
                 print('Connected to Network')        
                 print('network config:', sta_if.ifconfig())
@@ -50,7 +53,7 @@ def sendDataAndMeasurement(dummy = None) -> None:
     adc         = machine.ADC(ANALOGIN)
     sensorValue = adc.read_u16()
     voltage     = ((sensorValue * 3.3) / 65535) * 2 + CALIBRATION
-    voltage     = round(voltage,1)
+    voltage     = round(voltage,2)
     battery_percentage = scale_value(voltage,2.7,4.0,0,100)
     print('sensor',sensorValue,'voltage',voltage,'percent',battery_percentage)
     
@@ -78,8 +81,8 @@ def main():
     sentInitialData: bool = False    
     connect_wifi()
     
-    with open('battery.csv','w') as file:
-        file.write('time,voltage,battery_percentage\r\n')
+    #with open('battery.csv','w') as file:
+    #    file.write('time,voltage,battery_percentage\r\n')
     
     adc      = machine.ADC(ANALOGIN)
     relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)    
@@ -109,4 +112,6 @@ def main():
     
 if __name__ == '__main__':
     main()
+
+
 
