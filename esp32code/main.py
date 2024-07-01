@@ -49,7 +49,7 @@ def sendDataAndMeasurement(dummy = None) -> None:
     
     adc         = machine.ADC(machine.Pin(ANALOGIN,machine.Pin.IN))
     sensorValue = adc.read_u16()
-    voltage     = ((sensorValue * 3.3) / 4095) * 2 + CALIBRATION
+    voltage     = ((sensorValue * 3.3) / 65535) * 2 + CALIBRATION
     voltage     = round(voltage,1)
     battery_percentage = scale_value(voltage,2.7,4.0,0,100)
     print('sensor',sensorValue,'voltage',voltage,'percent',battery_percentage)
