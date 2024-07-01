@@ -9,7 +9,7 @@ SERVER  :str = 'api.thingspeak.com'
 THINGSPEAK_WRITE_API_KEY :str = 'GJ84DDRYWOHWXDH5'
 HTTP_HEADERS = {'Content-Type': 'application/json'} 
 
-RELAY_PIN: int        = 25
+RELAY_PIN: int        = 2
 ANALOGIN : int        = 0
 CALIBRATION: float    = -0.04
 
@@ -47,7 +47,7 @@ def scale_value(value, in_min, in_max, out_min, out_max):
 def sendDataAndMeasurement(dummy = None) -> None:
     print('reading')
     
-    adc         = machine.ADC(machine.Pin(ANALOGIN,machine.Pin.IN))
+    adc         = machine.ADC(ANALOGIN)
     sensorValue = adc.read_u16()
     voltage     = ((sensorValue * 3.3) / 65535) * 2 + CALIBRATION
     voltage     = round(voltage,1)
@@ -81,7 +81,7 @@ def main():
     with open('battery.csv','w') as file:
         file.write('time,voltage,battery_percentage\r\n')
     
-    adc      = machine.ADC(machine.Pin(ANALOGIN,machine.Pin.IN))
+    adc      = machine.ADC(ANALOGIN)
     relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)    
     relayPin.value(0)
     
@@ -93,8 +93,10 @@ def main():
                 sendDataAndMeasurement()
                 sentInitialData = True
             relayPin.value(1)
-            machine.Timer(1,period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
-            time.sleep(relayOnTimeSeconds)
+            t = machine.Timer(1)
+            t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
+            time.sleep(relayOnTimeSeconds*1000)
+            t.deinit()
         else:
             relayPin.value(0)
             print()
