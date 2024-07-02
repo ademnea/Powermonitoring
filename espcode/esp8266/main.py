@@ -16,7 +16,7 @@ CALIBRATION: float    = 0.39
 sendDataIntervalSeconds = 14
 relayOnTimeSeconds      = 5*60
 delayTimeSeconds        = 6*60*60
-wifiRetries             = 50
+wifiRetries             = 150
 
 
 def scan_wifi(sta_if) -> None:
@@ -59,6 +59,8 @@ def sendDataAndMeasurement(dummy = None) -> None:
     
     with open('battery.csv','a') as file:
         file.write(str(time.time_ns()))
+        file.write(',')
+        file.write('_'.join(list(str(x) for x in time.gmtime())))
         file.write(',')
         file.write(str(voltage))
         file.write(',')
