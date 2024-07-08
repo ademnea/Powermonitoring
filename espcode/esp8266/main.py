@@ -100,7 +100,7 @@ def main():
             relayPin.value(1)
             t = machine.Timer(1)
             t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
-            time.sleep(relayOnTimeSeconds*1000)
+            time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
             relayPin.value(0)
