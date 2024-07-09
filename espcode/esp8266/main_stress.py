@@ -6,7 +6,7 @@ import time
 SSID    :str = 'IoT-ra'
 PASSWORD:str = 'P9$y#F5x!b&'
 SERVER  :str = 'api.thingspeak.com'
-THINGSPEAK_WRITE_API_KEY :str = 'GJ84DDRYWOHWXDH5'
+THINGSPEAK_WRITE_API_KEY :str = 'K496XGBKTQEOF2C6'
 HTTP_HEADERS = {'Content-Type': 'application/json'} 
 
 RELAY_PIN: int        = 2
