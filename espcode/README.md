@@ -26,3 +26,6 @@ esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 
 where `ESP32_GENERIC-20240602-v1.23.0.bin` is the micropython binary from the site
 
 - create two files on the esp 32 using thonny `boot.py` and `main.py` then the logic runs with deep sleep
+
+Thingspeak channel
+https://thingspeak.com/channels/2488885

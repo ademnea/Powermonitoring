@@ -6,7 +6,7 @@ import time
 SSID    :str = 'IoT-ra'
 PASSWORD:str = 'P9$y#F5x!b&'
 SERVER  :str = 'api.thingspeak.com'
-THINGSPEAK_WRITE_API_KEY :str = 'GJ84DDRYWOHWXDH5'
+THINGSPEAK_WRITE_API_KEY :str = 'K496XGBKTQEOF2C6'
 HTTP_HEADERS = {'Content-Type': 'application/json'} 
 
 RELAY_PIN: int        = 2
@@ -15,8 +15,8 @@ CALIBRATION: float    = 0.39
 
 sendDataIntervalSeconds = 14
 relayOnTimeSeconds      = 5*60
-delayTimeSeconds        = 6*60*60
-wifiRetries             = 150
+delayTimeMiliSeconds    = 21_600_000
+wifiRetries             = 60
 
 
 def scan_wifi(sta_if) -> None:
@@ -36,10 +36,13 @@ def connect_wifi() -> None:
                 time.sleep(1)
                 count += 1                
             if sta_if.isconnected():
+                count += 1
                 print('Connected to Network')        
                 print('network config:', sta_if.ifconfig())
                 break
         except Exception as e:
+            time.sleep(1)
+            count += 1
             print(e)
             continue
             
@@ -109,7 +112,7 @@ def main():
             print()
             print('Delay')
             # time.sleep(delayTimeSeconds)
-            machine.deepsleep(delayTimeSeconds*1000)
+            machine.deepsleep(delayTimeMiliSeconds)
         
     
 if __name__ == '__main__':
