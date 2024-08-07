@@ -17,14 +17,8 @@ sendDataIntervalSeconds = 14
 relayOnTimeSeconds      = 5*60
 delayTimeMiliSeconds    = 21_600_000
 wifiRetries             = 60
-
-
-def scan_wifi(sta_if) -> None:
-    for x in sta_if.scan():
-        ssid = x[0]
-        values = x[1:]
-        
-def connect_wifi() -> None:  
+ 
+def connect_wifi() -> bool:  
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
     count = 0
@@ -39,18 +33,19 @@ def connect_wifi() -> None:
                 count += 1
                 print('Connected to Network')        
                 print('network config:', sta_if.ifconfig())
-                break
+                return True
         except Exception as e:
             time.sleep(1)
             count += 1
             print(e)
             continue
+    return False
             
 def scale_value(value, in_min, in_max, out_min, out_max):
   scaled_value = (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
   return scaled_value
 
-def sendDataAndMeasurement(dummy = None) -> None:
+def sendDataAndMeasurement(dummy = None) -> bool:
     print('reading')
     
     adc         = machine.ADC(ANALOGIN)
@@ -78,16 +73,15 @@ def sendDataAndMeasurement(dummy = None) -> None:
         headers = HTTP_HEADERS
     )
     request.close() 
-    if request.status_code == 200: print('successfully')
-    else: print('Data not sent')
+    if request.status_code == 200: 
+        print('successfully')
+        return True
+    else: 
+        print('Data not sent')
+        return False
     
 def main():
-    
-    sentInitialData: bool = False    
-    connect_wifi()
-    
-    #with open('battery.csv','w') as file:
-    #    file.write('time,voltage,battery_percentage\r\n')
+    is_connected = connect_wifi()
     
     adc      = machine.ADC(ANALOGIN)
     relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)    
@@ -97,12 +91,13 @@ def main():
     
     while True:
         if time.ticks_ms() - currentMillis < relayOnTimeSeconds*1_000:
-            if not sentInitialData:
-                sendDataAndMeasurement()
-                sentInitialData = True
+            
             relayPin.value(1)
             t = machine.Timer(1)
-            t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
+            if is_connected: 
+                t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
+            else:
+                t.init(period=relayOnTimeSeconds, callback = lambda x: print(time.tick_ms()-currentMillis))
             time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
