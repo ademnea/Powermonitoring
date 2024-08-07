@@ -11,14 +11,14 @@ and erase the old flash
 esptool.py --port /dev/ttyUSB0 erase_flash
 ```
 
-for esp8266
+for esp8266 (try holding flash button when connecting)
 
 ```bash
 esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect -fm dout 0 ESP8266_GENERIC-20240602-v1.23.0.bin
 ```
 where `ESP8266_GENERIC-20240602-v1.23.0.bin` is the micropython binary from the site
 
-for esp 32
+for esp 32 (try holding flash button when connecting)
 
 ```bash
 esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 ESP32_GENERIC-20240602-v1.23.0.bin
