@@ -97,7 +97,7 @@ def main():
             if is_connected: 
                 t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
             else:
-                t.init(period=relayOnTimeSeconds, callback = lambda x: print(time.ticks_ms()-currentMillis))
+                t.init(period=relayOnTimeSeconds, callback = lambda x: print((time.ticks_ms()-currentMillis))/1000,'seconds elapsed')
             time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
@@ -112,6 +112,4 @@ def main():
     
 if __name__ == '__main__':
     main()
-
-
 
