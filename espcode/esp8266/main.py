@@ -9,7 +9,8 @@ SERVER  :str = 'api.thingspeak.com'
 THINGSPEAK_WRITE_API_KEY :str = 'K496XGBKTQEOF2C6'
 HTTP_HEADERS = {'Content-Type': 'application/json'} 
 
-RELAY_PIN: int        = 2
+RELAY_PIN: int        = 4 # d2 is pin 4
+LED_PIN: int          = 2 # GPIO 2 is on board LED
 ANALOGIN : int        = 0
 CALIBRATION: float    = 0.39
 
@@ -17,8 +18,8 @@ sendDataIntervalSeconds = 14
 relayOnTimeSeconds      = 5*60
 delayTimeMiliSeconds    = 21_600_000
 wifiRetries             = 60
-
-relayPin.value(1) # since the esp is active high
+#relayPin = RELAY_PIN
+#relayPin.value(1) # since the esp is active high
 
 def connect_wifi() -> bool:  
     sta_if = network.WLAN(network.STA_IF)
@@ -82,28 +83,31 @@ def sendDataAndMeasurement(dummy = None) -> bool:
         print('Data not sent')
         return False
     
-def main():
-    is_connected = connect_wifi()
-    
+def main():    
     adc      = machine.ADC(ANALOGIN)
-    relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)    
-    relayPin.value(1) # since the esp is active high
+    relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)
+    ledPin = machine.Pin(LED_PIN,machine.Pin.OUT)
+    relayPin.value(0)
+    ledPin.value(1)
     
+    is_connected = connect_wifi()
     currentMillis = time.ticks_ms()
     
     while True:
         if time.ticks_ms() - currentMillis < relayOnTimeSeconds*1_000:
             
-            relayPin.value(0)# since the esp is active high
+            relayPin.value(1)
+            ledPin.value(0)
             t = machine.Timer(1)
             if is_connected: 
                 t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
             else:
-                t.init(period=relayOnTimeSeconds, callback = lambda x: print((time.ticks_ms()-currentMillis))/1000,'seconds elapsed')
+                t.init(period=relayOnTimeSeconds, callback = lambda x: print((time.ticks_ms()-currentMillis)/1000,'seconds elapsed'))
             time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
             relayPin.value(0)
+            ledPin.value(1)
             print()
             print()
             print()
@@ -114,4 +118,3 @@ def main():
     
 if __name__ == '__main__':
     main()
-
