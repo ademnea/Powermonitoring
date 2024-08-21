@@ -17,7 +17,9 @@ sendDataIntervalSeconds = 14
 relayOnTimeSeconds      = 5*60
 delayTimeMiliSeconds    = 21_600_000
 wifiRetries             = 60
- 
+
+relayPin.value(1) # since the esp is active high
+
 def connect_wifi() -> bool:  
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
@@ -85,14 +87,14 @@ def main():
     
     adc      = machine.ADC(ANALOGIN)
     relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)    
-    relayPin.value(0)
+    relayPin.value(1) # since the esp is active high
     
     currentMillis = time.ticks_ms()
     
     while True:
         if time.ticks_ms() - currentMillis < relayOnTimeSeconds*1_000:
             
-            relayPin.value(1)
+            relayPin.value(0)# since the esp is active high
             t = machine.Timer(1)
             if is_connected: 
                 t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
