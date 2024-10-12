@@ -14,10 +14,10 @@ LED_PIN: int              =  0 # GPIO0 internal LED
 ANALOGIN : int         =  27
 CALIBRATION: float  =  0.39
 
-sendDataIntervalSeconds = 14
-relayOnTimeSeconds      = 5*60
-delayTimeMiliSeconds    = 21_600_000
-wifiRetries             = 15
+sendDataIntervalSeconds = 15
+relayOnTimeSeconds      = 1*60
+delayTimeSeconds   = 6*60*60
+wifiRetries             = 2
 
 def connect_wifi() -> bool:  
     sta_if = network.WLAN(network.STA_IF)
@@ -49,7 +49,7 @@ def scale_value(value, in_min, in_max, out_min, out_max):
 def sendDataAndMeasurement(dummy = None) -> bool:
     print('reading')
     
-    adc         = machine.ADC(ANALOGIN)
+    adc         = machine.ADC(machine.Pin(ANALOGIN))
     sensorValue = adc.read_u16()
     voltage     = ((sensorValue * 3.3) / 65535) * 2 + CALIBRATION
     voltage     = round(voltage,2)
@@ -98,10 +98,16 @@ def main():
             ledPin.value(0)
             
             if is_connected: 
-                machine.Timer(1,period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
+                t = machine.Timer(
+                    period=sendDataIntervalSeconds *1000,
+                    callback = sendDataAndMeasurement
+                )
                 time.sleep(relayOnTimeSeconds)
             else:
-                machine.Timer(1,period=relayOnTimeSeconds, callback = lambda x: print((time.ticks_ms()-currentMillis)/1000,'seconds elapsed'))
+                t = machine.Timer(
+                    period=sendDataIntervalSeconds*1000,
+                    callback = lambda x: print((time.ticks_ms()-currentMillis)/1000,'seconds elapsed')
+                )
             time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
@@ -111,9 +117,11 @@ def main():
             print()
             print()
             print('Delay')
-            # time.sleep(delayTimeSeconds)
-            machine.deepsleep(delayTimeMiliSeconds)
+            time.sleep(delayTimeSeconds)
+            # machine deep sleep does'nt work for long values
+            # machine.deepsleep(delayTimeSeconds*1000)
         
     
 if __name__ == '__main__':
     main()
+

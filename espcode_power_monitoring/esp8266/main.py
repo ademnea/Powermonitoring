@@ -100,9 +100,9 @@ def main():
             ledPin.value(0)
             t = machine.Timer(1)
             if is_connected: 
-                t.init(period=relayOnTimeSeconds ,callback = sendDataAndMeasurement)
+                t.init(period=sendDataIntervalSeconds ,callback = sendDataAndMeasurement)
             else:
-                t.init(period=relayOnTimeSeconds, callback = lambda x: print((time.ticks_ms()-currentMillis)/1000,'seconds elapsed'))
+                t.init(period=sendDataIntervalSeconds, callback = lambda x: print((time.ticks_ms()-currentMillis)/1000,'seconds elapsed'))
             time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
