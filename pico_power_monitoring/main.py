@@ -3,11 +3,8 @@ import network
 import machine
 import time
 
-# SSID    :str = 'IoT-ra'
-# PASSWORD:str = 'P9$y#F5x!b&'
-
-SSID    :str = 'netEwaste'
-PASSWORD:str = 'net3013P'
+SSID    :str = 'IoT-ra'
+PASSWORD:str = 'P9$y#F5x!b&'
 
 SERVER  :str = 'api.thingspeak.com'
 THINGSPEAK_WRITE_API_KEY :str = 'K496XGBKTQEOF2C6'
@@ -94,7 +91,7 @@ def main():
     currentMillis  = time.ticks_ms()
     
     while True:
-        if time.ticks_ms() - currentMillis < relayOnTimeSeconds*1_000:
+        if time.ticks_ms() - currentMillis < relayOnTimeSeconds*1_000+1:
             
             relayPin.on()
             ledPin.on()
@@ -121,14 +118,17 @@ def main():
             print('light sleep')
             # time.sleep(delayTimeSeconds)
             time.sleep(10)
-            print('reset')
-            machine.reset()
-            
+            # import sys
+            # sys.exit() # soft reboot doesn't restart the main file
+            # print(reset)
+            # machine.reset()
             # machine deep sleep does'nt work for long values
-            #print('deep sleep')
-            #machine.deepsleep(10*1000) # deep sleep to induce wake up into boot file
+            # print('deep sleep')
+            # machine.deepsleep(10*1000) # deep sleep to induce wake up into boot file
+            main()
         
     
 if __name__ == '__main__':
     main()
+
 
