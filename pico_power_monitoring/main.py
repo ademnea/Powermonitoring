@@ -3,8 +3,8 @@ import network
 import machine
 import time
 
-SSID    :str = 'IoT-ra'
-PASSWORD:str = 'P9$y#F5x!b&'
+# SSID    :str = 'IoT-ra'
+# PASSWORD:str = 'P9$y#F5x!b&'
 
 SERVER  :str = 'api.thingspeak.com'
 THINGSPEAK_WRITE_API_KEY :str = 'K496XGBKTQEOF2C6'
@@ -16,7 +16,7 @@ ANALOGIN : int         =  27
 CALIBRATION: float  =  0.39
 
 sendDataIntervalSeconds = 15
-relayOnTimeSeconds      = 1*60
+relayOnTimeSeconds      = 5*60
 delayTimeSeconds   = 6*60*60
 wifiRetries             = 25
 
@@ -116,8 +116,8 @@ def main():
             print()
             print()
             print('light sleep')
-            # time.sleep(delayTimeSeconds)
-            time.sleep(10)
+            time.sleep(delayTimeSeconds)
+            # time.sleep(10)
             # import sys
             # sys.exit() # soft reboot doesn't restart the main file
             # print(reset)
