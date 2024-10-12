@@ -3,21 +3,25 @@ import network
 import machine
 import time
 
-SSID    :str = 'IoT-ra'
-PASSWORD:str = 'P9$y#F5x!b&'
+# SSID    :str = 'IoT-ra'
+# PASSWORD:str = 'P9$y#F5x!b&'
+
+SSID    :str = 'netEwaste'
+PASSWORD:str = 'net3013P'
+
 SERVER  :str = 'api.thingspeak.com'
 THINGSPEAK_WRITE_API_KEY :str = 'K496XGBKTQEOF2C6'
 HTTP_HEADERS = {'Content-Type': 'application/json'} 
 
 RELAY_PIN: int           = 4 # GPIO4 pin 6 
-LED_PIN: int              =  0 # GPIO0 internal LED
+LED_PIN: str             =  "LED" # not connected to pin but to wifi
 ANALOGIN : int         =  27
 CALIBRATION: float  =  0.39
 
 sendDataIntervalSeconds = 15
 relayOnTimeSeconds      = 1*60
 delayTimeSeconds   = 6*60*60
-wifiRetries             = 2
+wifiRetries             = 25
 
 def connect_wifi() -> bool:  
     sta_if = network.WLAN(network.STA_IF)
@@ -47,8 +51,6 @@ def scale_value(value, in_min, in_max, out_min, out_max):
   return scaled_value
 
 def sendDataAndMeasurement(dummy = None) -> bool:
-    print('reading')
-    
     adc         = machine.ADC(machine.Pin(ANALOGIN))
     sensorValue = adc.read_u16()
     voltage     = ((sensorValue * 3.3) / 65535) * 2 + CALIBRATION
@@ -86,7 +88,7 @@ def main():
     relayPin = machine.Pin(RELAY_PIN,machine.Pin.OUT)
     ledPin = machine.Pin(LED_PIN,machine.Pin.OUT)
     relayPin.value(0)
-    ledPin.value(1)
+    ledPin.value(0)
     
     is_connected = connect_wifi()
     currentMillis  = time.ticks_ms()
@@ -94,8 +96,8 @@ def main():
     while True:
         if time.ticks_ms() - currentMillis < relayOnTimeSeconds*1_000:
             
-            relayPin.value(1)
-            ledPin.value(0)
+            relayPin.on()
+            ledPin.on()
             
             if is_connected: 
                 t = machine.Timer(
@@ -111,15 +113,20 @@ def main():
             time.sleep(relayOnTimeSeconds)
             t.deinit()
         else:
-            relayPin.value(0)
-            ledPin.value(1)
+            relayPin.off()
+            ledPin.off()
             print()
             print()
             print()
-            print('Delay')
-            time.sleep(delayTimeSeconds)
+            print('light sleep')
+            # time.sleep(delayTimeSeconds)
+            time.sleep(10)
+            print('reset')
+            machine.reset()
+            
             # machine deep sleep does'nt work for long values
-            # machine.deepsleep(delayTimeSeconds*1000)
+            #print('deep sleep')
+            #machine.deepsleep(10*1000) # deep sleep to induce wake up into boot file
         
     
 if __name__ == '__main__':
